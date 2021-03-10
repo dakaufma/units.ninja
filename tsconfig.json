@@ -5,7 +5,6 @@
 		"moduleResolution": "Node",
 		"module": "ESNext",
 		"outDir": "dist",
-		"sourceMap": true,
 		"newLine": "lf"
 	}
 }
