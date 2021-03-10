@@ -1,39 +1,15 @@
-// Copyright 2020 Google Inc. All Rights Reserved.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-import { IDisposable } from 'xterm';
-import Bindings, { OpenFlags, stringOut } from './bindings.js';
+import Bindings from './bindings.js';
 import { MemoryFS } from './fs.js';
 
 declare const Terminal: typeof import('xterm').Terminal;
 declare const FitAddon: typeof import('xterm-addon-fit');
-declare const WebLinksAddon: typeof import('xterm-addon-web-links');
 
 (async () => {
   let term = new Terminal();
 
+  // Init terminal
   let fitAddon = new FitAddon.FitAddon();
   term.loadAddon(fitAddon);
-
-  // {
-  //   let storedHistory = localStorage.getItem('command-history');
-  //   if (storedHistory) {
-  //     localEcho.history.entries = storedHistory.split('\n');
-  //     localEcho.history.rewind();
-  //   }
-  // }
-  term.loadAddon(new WebLinksAddon.WebLinksAddon());
 
   term.open(document.body);
   term.attachCustomKeyEventHandler((e) => {
@@ -50,20 +26,8 @@ declare const WebLinksAddon: typeof import('xterm-addon-web-links');
   fitAddon.fit();
   onresize = () => fitAddon.fit();
 
-  const ANSI_GRAY = '\x1B[38;5;251m';
-  const ANSI_BLUE = '\x1B[34;1m';
-  const ANSI_RESET = '\x1B[0m';
 
-  function writeIndented(s: string) {
-    term.write(
-      s
-        .trimStart()
-        .replace(/\n +/g, '\r\n')
-        .replace(/https:\S+/g, ANSI_BLUE + '$&' + ANSI_RESET)
-        .replace(/^#.*$/gm, ANSI_GRAY + '$&' + ANSI_RESET)
-    );
-  }
-
+  // Write ninja to terminal
   term.writeln("                     ,¡▄▄▄▄▄µ");
   term.writeln("                 ▄▄█████████████▄▄");
   term.writeln("              ,▄███████████████████▄");
@@ -79,11 +43,9 @@ declare const WebLinksAddon: typeof import('xterm-addon-web-links');
   term.writeln("                ▀█████████████████▀");
   term.writeln("                   \"▀▀▀█████▀▀▀└");
 
+  // Set up units wasm
   const module = WebAssembly.compileStreaming(fetch('./units.wasm'));
-
-  // This is just for the autocomplete, so spawn the task and ignore any errors.
   const fs = new MemoryFS();
-
   const textEncoder = new TextEncoder();
   const textDecoder = new TextDecoder();
 
@@ -95,7 +57,7 @@ declare const WebLinksAddon: typeof import('xterm-addon-web-links');
         line = bufferedInput.substring(0, maxLen);
         bufferedInput = bufferedInput.substring(maxLen);
       } else {
-        let onData: IDisposable;
+        let onData: any;
         try {
           await new Promise<void>(resolve => {
             onData = term.onData(s => {
@@ -140,21 +102,19 @@ declare const WebLinksAddon: typeof import('xterm-addon-web-links');
       let str = textDecoder.decode(data, { stream: true });
       term.write(
         str.replaceAll('\n', '\r\n')
-        //data
       );
     }
   };
 
-  const cmdParser = /(?:'(.*?)'|"(.*?)"|(\S+))\s*/gsuy;
-
+  // Load required files
   const preloadFile = async (name : string) => {
     const data = await (await fetch(name)).text();
     fs.writeFile(`/${name}`, data);
   };
-
   await preloadFile('definitions.units');
   await preloadFile('currency.units');
 
+  // Tutorial animation
   let animateNext = () => {};
   let timeoutHandle = 0;
   let animateTimeScale = .7;
@@ -209,12 +169,9 @@ declare const WebLinksAddon: typeof import('xterm-addon-web-links');
   });
   onData.dispose();
 
+  // Launch units.wasm
   while (true) {
     term.writeln('');
-    // localStorage.setItem(
-    //   'command-history',
-    //   localEcho.history.entries.join('\n')
-    // );
     try {
       let statusCode = await new Bindings({
         fs,
@@ -223,9 +180,6 @@ declare const WebLinksAddon: typeof import('xterm-addon-web-links');
         stderr: stdout,
         args: ['units'],
       }).run(await module);
-      if (statusCode !== 0) {
-        term.writeln(`Exit code: ${statusCode}`);
-      }
     } catch (err) {
       term.writeln(err.message);
     }

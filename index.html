@@ -1,13 +1,11 @@
 <!DOCTYPE html>
-<title>WebAssembly demo with File System Access</title>
-<meta name="description" content="A demo showing WebAssembly + WASI apps running on the Web with access to a real filesystem." />
+<title>Units.Ninja</title>
 <link rel="preload" href="units.wasm" as="fetch" crossorigin />
 <link rel="preload" href="definitions.units" as="fetch" crossorigin />
 <link rel="preload" href="currency.units" as="fetch" crossorigin />
-<link rel="icon" href="https://webassembly.org/favicon.ico" type="image/x-icon">
+<link rel="icon" href="favicon.webp" type="image/x-icon">
 <style>html, body, .xterm { height: 100%; margin: 0 }</style>
 <link rel="stylesheet" href="node_modules/xterm/css/xterm.css" />
 <script src="node_modules/xterm/lib/xterm.js"></script>
 <script src="node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
-<script src="node_modules/xterm-addon-web-links/lib/xterm-addon-web-links.js"></script>
 <script type="module" src="dist/browser.js"></script>
