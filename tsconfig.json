@@ -1,7 +1,6 @@
 {
 	"compileOnSave": true,
 	"compilerOptions": {
-		"strict": true,
 		"target": "ESNext",
 		"moduleResolution": "Node",
 		"module": "ESNext",
