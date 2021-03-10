@@ -1,0 +1,28 @@
+{
+  "name": "units.ninja",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc -p .",
+    "watch": "tsc -p . -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dakaufma/units.ninja.git"
+  },
+  "keywords": [],
+  "author": "David Kaufman",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/dakaufma/units.ninja/issues"
+  },
+  "homepage": "https://github.com/dakaufma/units.ninja#readme",
+  "description": "",
+  "dependencies": {
+    "asyncify-wasm": "^1.1.1",
+    "xterm": "^4.9.0",
+    "xterm-addon-fit": "^0.4.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.0.3"
+  }
+}
