@@ -12,17 +12,6 @@ asyncify-wasm@^1.1.1:
   resolved "https://registry.yarnpkg.com/asyncify-wasm/-/asyncify-wasm-1.1.2.tgz#914c27f4d642335e7ca775176401442176a2224a"
   integrity sha512-KGrv8/ZcxRgnQRTL3IYidpA7cFMtVozIRopd2lw/LgCSUWVtxDg93QQ7ulll9kGpq2Vf/RevGU503dRYXxqF+Q==
 
-"local-echo@github:RReverser/local-echo":
-  version "0.2.0"
-  resolved "https://codeload.github.com/RReverser/local-echo/tar.gz/e09efbba529cfca6de38339697eaa22c49cc627b"
-  dependencies:
-    shell-quote "^1.6.1"
-
-shell-quote@^1.6.1:
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/shell-quote/-/shell-quote-1.7.2.tgz#67a7d02c76c9da24f99d20808fcaded0e0e04be2"
-  integrity sha512-mRz/m/JVscCrkMyPqHc/bczi3OQHkLTqXHEFu0zDhK/qfv3UcOA4SVmRCLmos4bhjr9ekVQubj/R7waKapmiQg==
-
 typescript@^4.0.3:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.2.3.tgz#39062d8019912d43726298f09493d598048c1ce3"

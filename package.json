@@ -20,7 +20,6 @@
   "description": "",
   "dependencies": {
     "asyncify-wasm": "^1.1.1",
-    "local-echo": "github:RReverser/local-echo",
     "xterm": "^4.9.0",
     "xterm-addon-fit": "^0.4.0",
     "xterm-addon-web-links": "^0.4.0"

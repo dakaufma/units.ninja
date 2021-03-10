@@ -17,7 +17,6 @@ import Bindings, { OpenFlags, stringOut } from './bindings.js';
 import { MemoryFS } from './fs.js';
 
 declare const Terminal: typeof import('xterm').Terminal;
-declare const LocalEchoController: any;
 declare const FitAddon: typeof import('xterm-addon-fit');
 declare const WebLinksAddon: typeof import('xterm-addon-web-links');
 
@@ -27,28 +26,23 @@ declare const WebLinksAddon: typeof import('xterm-addon-web-links');
   let fitAddon = new FitAddon.FitAddon();
   term.loadAddon(fitAddon);
 
-  let localEcho = new LocalEchoController();
-  let knownCommands = ['help'];
-  localEcho.addAutocompleteHandler((index: number): string[] =>
-    index === 0 ? knownCommands : []
-  );
-  {
-    let storedHistory = localStorage.getItem('command-history');
-    if (storedHistory) {
-      localEcho.history.entries = storedHistory.split('\n');
-      localEcho.history.rewind();
-    }
-  }
-  term.loadAddon(localEcho);
-
+  // {
+  //   let storedHistory = localStorage.getItem('command-history');
+  //   if (storedHistory) {
+  //     localEcho.history.entries = storedHistory.split('\n');
+  //     localEcho.history.rewind();
+  //   }
+  // }
   term.loadAddon(new WebLinksAddon.WebLinksAddon());
 
   term.open(document.body);
   term.attachCustomKeyEventHandler((e) => {
     if (e.code === "F5") {
       return false;
-    } else if (e.code === "KeyR" && e.ctrlKey) {
-      return false;
+    } else if (e.ctrlKey) {
+      if (["KeyC", "KeyR"].indexOf(e.code) !== -1) {
+        return false;
+      }
     }
     return true;
   });
@@ -70,21 +64,25 @@ declare const WebLinksAddon: typeof import('xterm-addon-web-links');
     );
   }
 
+  term.writeln("                     ,¡▄▄▄▄▄µ");
+  term.writeln("                 ▄▄█████████████▄▄");
+  term.writeln("              ,▄███████████████████▄");
+  term.writeln("       ▀██▄  ▄███████████████████████▄");
+  term.writeln("        ▀██████████████[7mUNITS[0m███████████");
+  term.writeln(",▄▄████████████████████████████████████▌");
+  term.writeln(" \"▀▀▀████▀▀██▌  ¿\"└▀▀▀▀▀▀▀▀▀▀▀▀▀└└└  ▐██");
+  term.writeln("           ███  ▀██▄▄▄▄▄  .▄▄▄▄▄██▀  ███");
+  term.writeln("           ████▄  ▀▀▀▀▀     ▀▀▀▀▀  ▄████");
+  term.writeln("           \"██████▄▄,         ,▄▄██████\"");
+  term.writeln("            \"█████████████████████████└");
+  term.writeln("              ▀█████████████████████▀");
+  term.writeln("                ▀█████████████████▀");
+  term.writeln("                   \"▀▀▀█████▀▀▀└");
+
   const module = WebAssembly.compileStreaming(fetch('./units.wasm'));
 
   // This is just for the autocomplete, so spawn the task and ignore any errors.
   const fs = new MemoryFS();
-  (async () => {
-    let helpStr = '';
-
-    await new Bindings({
-      fs: fs,
-      args: ['units', '--help'],
-      stdout: stringOut(chunk => (helpStr += chunk))
-    }).run(await module);
-
-    console.log(helpStr);
-  })();
 
   const textEncoder = new TextEncoder();
   const textDecoder = new TextDecoder();
@@ -157,43 +155,76 @@ declare const WebLinksAddon: typeof import('xterm-addon-web-links');
   await preloadFile('definitions.units');
   await preloadFile('currency.units');
 
-  while (true) {
-    let line: string = await localEcho.read(`$ `);
-    localEcho.history.rewind();
-    localStorage.setItem(
-      'command-history',
-      localEcho.history.entries.join('\n')
-    );
-    let args = Array.from(
-      line.matchAll(cmdParser),
-      ([, s1, s2, s3]) => s1 ?? s2 ?? s3
-    );
-    try {
-      if (!args.length) {
-        continue;
+  let animateNext = () => {};
+  let timeoutHandle = 0;
+  let animateTimeScale = .7;
+  const onData = term.onData(s => {
+    animateTimeScale = 0;
+    clearTimeout(timeoutHandle);
+    timeoutHandle = 0;
+    animateNext();
+  });
+  let animateInputs = [
+    {init: "You have: ",                         text: "",           textDelay:  0, chunkDelay: 1000},
+    {init: "You have: ",                         text: "500 miles",  textDelay: 70, chunkDelay: 0, endLine: true},
+    {init: "You want: ",                         text: "",           textDelay:  0, chunkDelay: 1000},
+    {init: "You want: ",                         text: "millilig",   textDelay: 70, chunkDelay: 500},
+    {init: "You want: millilightyears    <TAB>", text: "",           textDelay:  0, chunkDelay: 800},
+    {init: "You want: millilightyears         ", text: "",           textDelay:  0, chunkDelay: 400},
+    {init: "You want: millilightseconds  <TAB>", text: "",           textDelay:  0, chunkDelay: 800},
+    {init: "You want: millilightseconds       ", text: "",           textDelay:  0, chunkDelay: 400, endLine: true},
+    {init: "        * 2.6840969",                text: "",           textDelay:  0, chunkDelay:   0, endLine: true},
+    {init: "        / 0.37256479",               text: "",           textDelay:  0, chunkDelay:   0, endLine: true},
+    {init: "",                                   text: "",           textDelay:  0, chunkDelay:   0, endLine: true},
+  ];
+  await new Promise<void>(resolve => {
+    const render = (iline, i) => {
+      if (iline >= animateInputs.length) {
+        animateNext = () => {};
+        resolve();
+        return;
       }
-      switch (args[0]) {
-        case 'help':
-          args[0] = '--help';
-          break;
-      }
-      localEcho.detach();
-      try {
-        let statusCode = await new Bindings({
-          fs,
-          stdin,
-          stdout: stdout,
-          stderr: stdout,
-          args: [...args],
-          //env: {
-          //  PWD: "/"
-          //}
-        }).run(await module);
-        if (statusCode !== 0) {
-          term.writeln(`Exit code: ${statusCode}`);
+      const {init, text, textDelay, chunkDelay, endLine} = animateInputs[iline];
+      term.write("\b\b\b\b\b\b\b       \r" + init + text.substring(0, i));
+      if (i > text.length) {
+        if (endLine) {
+          term.writeln("");
         }
-      } finally {
-        localEcho.attach();
+        animateNext = () => render(iline + 1, 0);
+        if (animateTimeScale) {
+          timeoutHandle = setTimeout(animateNext, chunkDelay * animateTimeScale);
+        } else {
+          animateNext();
+        }
+      } else {
+        animateNext = () => render(iline, i + 1);
+        if (animateTimeScale) {
+          timeoutHandle = setTimeout(animateNext, textDelay * animateTimeScale);
+        } else {
+          animateNext();
+        }
+      }
+    };
+    render(0, 0);
+  });
+  onData.dispose();
+
+  while (true) {
+    term.writeln('');
+    // localStorage.setItem(
+    //   'command-history',
+    //   localEcho.history.entries.join('\n')
+    // );
+    try {
+      let statusCode = await new Bindings({
+        fs,
+        stdin,
+        stdout: stdout,
+        stderr: stdout,
+        args: ['units'],
+      }).run(await module);
+      if (statusCode !== 0) {
+        term.writeln(`Exit code: ${statusCode}`);
       }
     } catch (err) {
       term.writeln(err.message);
