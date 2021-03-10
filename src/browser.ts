@@ -140,7 +140,6 @@ declare const WebLinksAddon: typeof import('xterm-addon-web-links');
   const stdout = {
     write(data: Uint8Array) {
       let str = textDecoder.decode(data, { stream: true });
-      console.log("Got write:", data.length, data, str);
       term.write(
         str.replaceAll('\n', '\r\n')
         //data
