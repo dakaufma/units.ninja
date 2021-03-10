@@ -370,7 +370,6 @@ export default class Bindings {
     const bindings: Record<string, (...args: any[]) => void | Promise<void>> = {
       fd_prestat_get: (fd: fd_t, prestatPtr: ptr<prestat_t>) => {
         const path = fd === 3 ? "/" : null;
-        //console.log("fd_prestat_get:", path);
         if (!path) {
           throw new SystemError(E.BADF, true);
         }
@@ -385,7 +384,6 @@ export default class Bindings {
         pathLen: number
       ) => {
         const path = fd === 3 ? "/" : null;
-        //console.log("fd_prestat_dir_name:", path);
         if (!path) {
           throw new SystemError(E.BADF, true);
         }
@@ -421,7 +419,6 @@ export default class Bindings {
         const name = string.get(this._getBuffer(), pathPtr, pathLen);
         const path = this._path(dirFd) + name;
         const fd = this._fs.open(path);
-        //console.log("path_open:", dirFd, dirFlags, name, "=>", fd);
         if (fd === null) {
           throw new Error(`path_open failed; file does not exist ${path}`);
         }
@@ -442,7 +439,6 @@ export default class Bindings {
         let read = fd === 0 ? this._stdIn.read : (maxLen) => this._fs.read(fd, maxLen);
         await this._forEachIoVec(iovsPtr, iovsLen, nreadPtr, async buf => {
           let chunk = await read(buf.length);
-          //console.log("Read chunk", buf.length, chunk.length/*, chunk*/);
           buf.set(chunk);
           return chunk.length;
         });
@@ -498,7 +494,6 @@ export default class Bindings {
       ) => {
         const name = string.get(this._getBuffer(), pathPtr, pathLen);
         const path = this._path(dirFd) + name;
-        //console.log("path_filestat_get:", path);
         const stat = this._fs.stat(path)
         return this._getFileStat(stat, filestatPtr);
       },
@@ -528,17 +523,14 @@ export default class Bindings {
       get: (target, name, receiver) => {
         let value = Reflect.get(target, name, receiver);
         if (typeof name !== 'string' || typeof value !== 'function') {
-          //console.log(name, "syscall not intercepted");
           return value;
         }
         return async (...args: any[]) => {
           try {
-            //console.log(name, args);
             await value(...args);
             this._checkAbort();
             return E.SUCCESS;
           } catch (err) {
-            //console.log("...error");
             return translateError(err);
           }
         };
