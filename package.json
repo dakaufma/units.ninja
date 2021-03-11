@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "build": "tsc -p .",
-    "watch": "tsc -p . -w"
+    "watch": "tsc -p . -w",
+    "ebuild": "esbuild --bundle --minify --outdir=build --loader:.js=jsx --target=chrome87,firefox68,safari14,edge80 ./src/browser.js",
+    "ewatch": "esbuild --bundle --minify --outdir=build --loader:.js=jsx --target=chrome87,firefox68,safari14,edge80 --watch ./src/browser"
   },
   "repository": {
     "type": "git",
@@ -23,6 +25,7 @@
     "xterm-addon-fit": "^0.4.0"
   },
   "devDependencies": {
+    "esbuild": "^0.9.0",
     "typescript": "^4.0.3"
   }
 }
