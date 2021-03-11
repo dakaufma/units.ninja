@@ -170,6 +170,9 @@ import "../node_modules/xterm/css/xterm.css";
   });
   onData.dispose();
 
+  term.writeln('Type "help" or see https://www.gnu.org/software/units/manual/units.html for more information');
+  term.writeln('');
+
   // Launch units.wasm
   while (true) {
     term.writeln('');
