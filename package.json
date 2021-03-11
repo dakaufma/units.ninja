@@ -4,8 +4,8 @@
   "scripts": {
     "build": "tsc -p .",
     "watch": "tsc -p . -w",
-    "ebuild": "esbuild --bundle --minify --outdir=build --loader:.js=jsx --target=chrome87,firefox68,safari14,edge80 ./src/browser.js",
-    "ewatch": "esbuild --bundle --minify --outdir=build --loader:.js=jsx --target=chrome87,firefox68,safari14,edge80 --watch ./src/browser"
+    "ebuild": "esbuild --bundle --minify --outdir=build --loader:.js=jsx --target=chrome87,firefox68,safari14,edge80 ./src/units.js",
+    "ewatch": "esbuild --bundle --outdir=build --loader:.js=jsx --target=chrome87,firefox68,safari14,edge80 --watch ./src/units.js"
   },
   "repository": {
     "type": "git",

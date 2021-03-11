@@ -1,14 +1,15 @@
+import { Terminal } from 'xterm';
+import { FitAddon } from 'xterm-addon-fit';
 import Bindings from './bindings.js';
 import { MemoryFS } from './fs.js';
 
-declare const Terminal: typeof import('xterm').Terminal;
-declare const FitAddon: typeof import('xterm-addon-fit');
+import "../node_modules/xterm/css/xterm.css";
 
 (async () => {
   let term = new Terminal();
 
   // Init terminal
-  let fitAddon = new FitAddon.FitAddon();
+  let fitAddon = new FitAddon();
   term.loadAddon(fitAddon);
 
   term.open(document.body);

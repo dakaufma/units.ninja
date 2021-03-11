@@ -1,6 +1,8 @@
 {
 	"compileOnSave": true,
 	"compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
 		"target": "ESNext",
 		"moduleResolution": "Node",
 		"module": "ESNext",
